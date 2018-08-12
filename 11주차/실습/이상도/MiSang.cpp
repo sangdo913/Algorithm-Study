@@ -16,7 +16,7 @@ bool isOut(int r, int c){
     return r == 0 || r == n-1 || c == 0 || c== n-1; 
 }
 
-int MiSang(){
+int main(){
     int t;
     scanf("%d\n", &t);
 

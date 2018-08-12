@@ -48,7 +48,7 @@ int maxHouse(int r, int c){
 int MAX(int i1, int i2){
     return i1 < i2 ? i2 : i1;
 }
-int homeBang(){
+int main(){
     for(int i = 1; i < 42; i++){
         cost[i] = i*i + (i-1)*(i-1);
     }

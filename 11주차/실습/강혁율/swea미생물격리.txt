@@ -1,0 +1,127 @@
+/*
+어떻게 풀 것인가?
+	-> 직접 map을 이용해서 하나씩 찾지 않고 vector에 원소들을 넣어서
+	-> 원소들을 가지고 직접 이용
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+#include <queue>
+#define SIZE 101
+using namespace std;
+int N, M, K, tc;
+typedef struct virPosition {
+	int numOfVirus;
+	int oriNumOfVirus;
+	int dir;
+}virPosition;
+
+typedef struct posision {
+	int row;
+	int col;
+	int numOfVirus;
+	int dir;
+}posision;
+// (상: 1, 하: 2, 좌: 3, 우: 4)
+int dmove[5][2] = { {0,0}, {-1,0},{1,0},{0,-1},{0,1} };
+
+int isChangeNumVirus(int row, int col, int value)
+{
+	if (row == 0 || row == N - 1 || col == 0 || col == N - 1)
+		return value / 2;
+	else
+		return value;
+}
+
+int isChangeDir(int row, int col, int value)
+{
+	int dir[5] = { 0,2,1,4,3 };
+	if (row == 0 || row == N - 1 || col == 0 || col == N - 1)
+		return dir[value];
+	else
+		return value;
+}
+
+void PRINT(vector<posision> &curQ)
+{
+	for (int i = 0; i < curQ.size(); i++)
+		printf("%d %d %d %d\n",curQ[i].row, curQ[i].col, curQ[i].numOfVirus, curQ[i].dir);
+	printf("\n");
+}
+
+int solution(int cnt, vector<posision> &curQ, virPosition virusMap[SIZE][SIZE])
+{
+
+	if (cnt == M)
+	{
+		int sum = 0;
+		for (int i = 0; i < curQ.size(); i++)
+			sum += curQ[i].numOfVirus;
+		return sum;
+	}
+	else
+	{
+		vector<posision>nextQ;
+		for(int i=0; i<SIZE ;i++)
+			memset(virusMap[i], 0, sizeof(virPosition)*SIZE);
+		PRINT(curQ);
+		while (!curQ.empty())
+		{
+			int cRow = curQ.back().row;
+			int cCol = curQ.back().col;
+			int cNumVir = curQ.back().numOfVirus;
+			int cDir = curQ.back().dir;
+			curQ.pop_back();
+			int nRow = cRow + dmove[cDir][0];
+			int nCol = cCol + dmove[cDir][1];
+			int nNumVir = isChangeNumVirus(nRow, nCol, cNumVir);
+			int nDir = isChangeDir(nRow, nCol, cDir);
+
+			if (nNumVir == 0) continue;
+			if (virusMap[nRow][nCol].numOfVirus==0)
+			{
+				virusMap[nRow][nCol].numOfVirus = nNumVir;
+				virusMap[nRow][nCol].oriNumOfVirus = nNumVir;
+				virusMap[nRow][nCol].dir = nDir;
+				nextQ.push_back({ nRow,nCol,nNumVir, nDir });
+			}
+			else//이미 nextQ에 원소가 들어가 있음
+			{
+				virusMap[nRow][nCol].dir = virusMap[nRow][nCol].oriNumOfVirus > nNumVir ? virusMap[nRow][nCol].dir : nDir;
+				virusMap[nRow][nCol].oriNumOfVirus = virusMap[nRow][nCol].oriNumOfVirus > nNumVir ? virusMap[nRow][nCol].oriNumOfVirus : nNumVir;
+				virusMap[nRow][nCol].numOfVirus += nNumVir;
+				//큐 수정, 새로 넣어주진 않음.
+				for (int i = 0; i < nextQ.size(); i++)
+				{
+					if (nextQ[i].row == nRow && nextQ[i].col == nCol)
+					{
+						nextQ[i].numOfVirus = virusMap[nRow][nCol].numOfVirus;
+						nextQ[i].dir = virusMap[nRow][nCol].dir;
+						break;
+					}
+				}
+			}
+		}
+		return solution(cnt + 1, nextQ, virusMap);
+	}
+}
+
+int main()
+{
+	int testcase;
+	scanf("%d",&testcase);
+	for (tc = 1; tc <= testcase; tc++)
+	{
+		scanf("%d %d %d",&N,&M,&K);
+		int virRow, virCol, virNum, virDir;
+		vector<posision>q;
+		virPosition virusMap[SIZE][SIZE];
+		for (int virLoop = 0; virLoop < K; virLoop++)
+		{
+			scanf("%d %d %d %d",&virRow, &virCol, &virNum, &virDir);
+			q.push_back({ virRow,virCol, virNum, virDir });
+		}
+		printf("#%d %d\n", tc, solution(0, q, virusMap));
+	}
+	return 0;
+}

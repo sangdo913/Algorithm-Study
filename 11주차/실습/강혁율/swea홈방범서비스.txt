@@ -1,0 +1,114 @@
+/*
+손해를 보지 않고 방범할 수 있는 최대 수
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+#include <queue>
+#define SIZE 21
+using namespace std;
+int N, M;
+
+bool map[SIZE][SIZE];
+bool visit[SIZE][SIZE];
+int patrolFee[SIZE * 2];
+int canHaveHome[SIZE][SIZE][SIZE * 2];
+
+typedef struct position {
+	int row;
+	int col;
+	int cnt;
+}position;
+
+int drow[] = { 0,0,1,-1 };
+int dcol[] = { 1,-1,0,0 };
+
+bool isOK(int row, int col)
+{
+	if (row < 0 || row >= N || col < 0 || col >= N || visit[row][col] == true) return false;
+	else return true;
+}
+
+int sumOfFee(int K)
+{
+	return  K * K + (K - 1) * (K - 1);
+}
+
+//bfs로 탐색
+int searchHouse(int ROW, int COL)
+{
+	queue<position>q;
+	q.push({ ROW,COL,1 });
+	visit[ROW][COL] = true;
+	if (map[ROW][COL] == 1) canHaveHome[ROW][COL][1] = 1;
+	while (!q.empty())
+	{
+		int row = q.front().row;
+		int col = q.front().col;
+		int cnt = q.front().cnt;
+		q.pop();
+		for (int i = 0; i < 4; i++)
+		{
+			int nrow = row + drow[i];
+			int ncol = col + dcol[i];
+			int ncnt = cnt + 1;
+			if (isOK(nrow, ncol) != true) continue;
+			//cnt값에 대해 가질 수 있는 집이 있다면 개수 증가
+			if (map[nrow][ncol] == 1) canHaveHome[ROW][COL][ncnt]++;
+			visit[nrow][ncol] = true;
+			q.push({ nrow,ncol,ncnt });
+		}
+	}
+	//가질수 있는 최대 값 계산
+	int canHaveMax = 0;
+	int sumHome = 0;
+	for (int i = 1; i <=N+1; i++)
+	{
+		sumHome += canHaveHome[ROW][COL][i];
+		if (sumHome*M >= patrolFee[i])
+			canHaveMax = canHaveMax > sumHome ? canHaveMax : sumHome;
+	}
+	
+	return canHaveMax;
+}
+
+int solution()
+{
+	int maxHoustCnt = 0;
+	
+	for (int row = 0; row < N; row++)
+	{
+		for (int col = 0; col < N; col++)
+		{
+			memset(visit, false, sizeof(visit));
+			memset(canHaveHome, 0, sizeof(canHaveHome));
+			int tmp_max = searchHouse(row, col);
+			maxHoustCnt = maxHoustCnt > tmp_max ? maxHoustCnt : tmp_max;
+		}
+	}
+	return maxHoustCnt;
+}
+
+int main()
+{
+	setbuf(stdout, NULL);
+	freopen("C:\\Users\\hykang\\Desktop\\input.txt", "r", stdin);
+	int testcase;
+	scanf("%d", &testcase);
+	for (int tc = 1; tc <= testcase; tc++)
+	{
+		int howmanyhouse = 0;
+		scanf("%d %d", &N, &M);
+		memset(map, false, sizeof(map));
+		for (int i = 0; i < N; i++)
+			for (int j = 0; j < N; j++)
+				scanf("%d", &map[i][j]);
+
+		//사전에 미리 fee값을 비교
+		for (int i = 0; i <=N+1; i++)
+			patrolFee[i] = sumOfFee(i);
+
+		printf("#%d %d\n", tc, solution());
+	}
+	return 0;
+}

@@ -1,0 +1,80 @@
+/*
+문제 설명
+	1. 크기 NxM 지도
+	2. (r,c) 북족에서 떨어진 칸 r, 서쪽에서 떨어진 칸 c
+	3. 주사위 가장 처음에는 모든 면이 0
+	4. 지도 숫자를 주사위 바닥면에 복사
+	5. 주사위가 이동했을때 마다 윗면의 숫자는?
+
+입력
+	1. 세로 크기 N, 가로크기 M
+	2. 주사위를 놓은 곳 x,y (지도 범위내 존재)
+	3. 명령 개수 K
+	4. 동쪽 = 1, 서쪽 = 2, 북쪽 = 3, 남쪽 = 4
+
+출력
+	1. 주사위 윗 면 수
+	2. 만약 바깥쪽으로 이동시키려고 하는 경우 명령 무시, 출력도 하면 안됨
+
+어떻게 풀 것인가?
+	1. 동서남북 이동에 따른 주사위 번호를 어떻게 가지고 갈 것인지 결정
+	2. 동서남북에 따른 주사위 이동 방향 결정
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#define SIZE 20
+int N, M, K;
+int map[SIZE][SIZE];
+int dice[6];
+int x, y;
+//동쪽 = 1, 서쪽 = 2, 북쪽 = 3, 남쪽 = 4
+int dmove[5][2] = { {0,0}, {0,1},{0,-1},{-1,0},{1,0} };
+int moveDice[5][6] = {
+	{0,1,2,3,4,5},
+	{3,1,0,5,4,2},
+	{ 2,1,5,0,4,3 },
+	{4,0,2,3,5,1},
+	{ 1,5,2,3,0,4 }
+};
+
+int solution(int dir)
+{
+	int nrow = x + dmove[dir][0];
+	int ncol = y + dmove[dir][1];
+	if (nrow < 0 || nrow >= N || ncol < 0 || ncol >= M) return -1;
+	//swap과정
+	int tmp[6] = { 0,};
+	for (int i = 0; i < 6; i++)
+		tmp[i] = dice[moveDice[dir][i]];
+	for (int i = 0; i < 6; i++)
+		dice[i] = tmp[i];
+	if (map[nrow][ncol] != 0)
+	{
+		dice[5] = map[nrow][ncol];
+		map[nrow][ncol] = 0;
+	}
+	else
+		map[nrow][ncol] = dice[5];
+	x = nrow;
+	y = ncol;
+	return dice[0];
+}
+
+int main()
+{
+	setbuf(stdout, NULL);
+	freopen("C:\\Users\\hykang\\Desktop\\input.txt", "r", stdin);
+	scanf("%d %d %d %d %d",&N,&M,&x,&y,&K);
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < M; j++)
+			scanf("%d",&map[i][j]);
+	int request;
+	for (int i = 0; i < K; i++)
+	{
+		scanf("%d", &request);
+		int result = solution(request);
+		if (result != -1)
+			printf("%d\n", result);	
+	}
+	return 0;
+}

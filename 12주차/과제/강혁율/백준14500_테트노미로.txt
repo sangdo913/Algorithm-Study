@@ -1,0 +1,74 @@
+/*
+어떻게 풀 것인가?
+	1. 완전탐색
+	2. 존버
+	3. 긴거는 2개 사각형은 1개 L자는 회전까지 8개 ㅗ는 4개 2개지그재그는 4개
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#define SIZE 500
+int N, M;
+int arr[SIZE][SIZE];
+
+int Loop[19][4][2] = {
+	//긴 막대
+	{ { 0, 0 },{ 1, 0 },{ 2, 0 },{ 3, 0 } },
+	{ { 0, 0 },{ 0, 1 },{ 0, 2 },{ 0, 3 } },
+	//L모양
+	{ { 0, 0 },{ 0, 1 },{ 1, 0 },{ 1, 1 } },
+	{ { 0, 0 },{ 1, 0 },{ 2, 0 },{ 2, 1 } },
+	{ { 0, 0 },{ 1, -2 },{ 1, -1 },{ 1, 0 } },
+	{ { 0, 0 },{ 0, 1 },{ 1, 1 },{ 2, 1 } },
+	{ { 0, 0 },{ 0, 1 },{ 0, 2 },{ 1, 0 } },
+	{ { 0, 0 },{ 1, 0 },{ 2, 0 },{ 2, -1 } },
+	{ { 0, 0 },{ 0, 1 },{ 0, 2 },{ 1, 2 } },
+	{ { 0, 0 },{ 0, 1 },{ 1, 0 },{ 2, 0 } },
+	{ { 0, 0 },{ 1, 0 },{ 1, 1 },{ 1, 2 } },
+	{ { 0, 0 },{ 1, 0 },{ 1, 1 },{ 2, 1 } },
+	{ { 0, 0 },{ 0, 1 },{ 1, -1 },{ 1, 0 } },
+	{ { 0, 0 },{ 1, -1 },{ 1, 0 },{ 2, -1 } },
+	{ { 0, 0 },{ 0, 1 },{ 1, 1 },{ 1, 2 } },
+	{ { 0, 0 },{ 0, 1 },{ 0, 2 },{ 1, 1 } },
+	{ { 0, 0 },{ 1, 0 },{ 1, 1 },{ 2, 0 } },
+	{ { 0, 0 },{ 1, -1 },{ 1, 0 },{ 1, 1 } },
+	{ { 0, 0 },{ 1, -1 },{ 1, 0 },{ 2, 0 } },
+};
+
+int solution(int row, int col)
+{
+	int maxSum = 0;
+	for (int loop = 0; loop < 19; loop++)
+	{
+		int tmpSum = 0;
+		for (int dir = 0; dir < 4; dir++)
+		{
+			
+			int nrow = row + Loop[loop][dir][0];
+			int ncol = col + Loop[loop][dir][1];
+			if (nrow < 0 || nrow >= N || ncol < 0 || ncol >= M) break;
+			tmpSum += arr[nrow][ncol];
+		}
+		maxSum = maxSum > tmpSum ? maxSum : tmpSum;
+	}
+	return maxSum;
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	freopen("C:\\Users\\hykang\\Desktop\\input.txt", "r", stdin);
+	scanf("%d %d",&N,&M);
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < M; j++)
+			scanf("%d",&arr[i][j]);
+
+	int max = 0;
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < M; j++)
+		{
+			int tmp_max = solution(i, j);
+			max = tmp_max > max ? tmp_max : max;
+		}
+	printf("%d",max);
+	return 0;
+}

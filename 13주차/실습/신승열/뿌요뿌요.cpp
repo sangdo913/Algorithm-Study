@@ -1,122 +1,116 @@
-//
-//  main.cpp
-//  baek뿌요뿌요
-//
-//  Created by ShinSeungYeol on 2018. 8. 26..
-//  Copyright © 2018년 ShinSeungYeol. All rights reserved.
-//
-
-#include <cstdio>
-enum {EMPTY=0, RED=1, GREEN=2, BLUE=3, PURPLE=4, YELLOW=5};
-
-int dirr[8]={-1,0,1,0,1,1,-1,-1};
-int dirc[8]={0,1,0,-1,-1,1,1,-1};
-int map[12][6];
-int cnt = 0; //this is answer
-bool check = false;
+#include  <cstdio>
+#include <queue>
+#include <utility>
 
 using namespace std;
+enum {EMPTY=0, YELLOW=1, RED=2, GREEN=3, PURPLE=4, BLUE=5};
+
+int dir_r[4]={-1,0,1,0};
+int dir_c[4]={0,1,0,-1};
+
+int map[12][6];  // map  정보
+bool check[12][6]={false};// 테트로 미노일 경우: 1 아닐 경우 0
+int cnt_of_burst=0;
+
+void swap(int ar,int ac, int br, int bc){
+    int tmp = map[ar][ac];
+    map[ar][ac] = map[br][bc];
+    map[br][bc] = tmp;
+}
 bool is_range(int r, int c){
     return (r>=0&&r<12&&c>=0&&c<6);
 }
-bool can_go(int r, int c, int call_number){
-    for(int i=0; i<4; i++){
-        int next_r = r+dirr[i];
-        int next_c = c+dirc[i];
-        if(map[next_r][next_c]==call_number)
-            return true;
-    }
-    return false;
-}
-void check_shape(int cnt, int r, int c, int color, int call_number){
-    if(cnt==4){
-        check=true; // 지울 수 있는 모양인 경우
-        return;
-    }
-    for(int i=0; i<8; i++){
-        int next_r = r+dirr[i];
-        int next_c = c+dirc[i];
-        if(is_range(next_r,next_c)&&map[next_r][next_c]==color&&can_go(next_r,next_c,call_number)){
-            map[next_r][next_c] = call_number;
-            check_shape(cnt+1, next_r, next_c,color,call_number);
-            if(!check) map[next_r][next_c] = color;
+//queue를 이용해서 다시 한번
+void determine_burst(int r, int c){
+    queue<pair<int,int>> q;
+    queue<pair<int,int>> tmp_q;
+    q.push(make_pair(r,c));
+    tmp_q.push(make_pair(r,c));
+    int color = map[r][c];
+    while(!q.empty()){
+        int cur_r = q.front().first,cur_c = q.front().second;
+        q.pop();
+        check[cur_r][cur_c] = true;
+        for(int i=0; i<4; i++){
+            int next_r=cur_r+dir_r[i], next_c=cur_c+dir_c[i];
+            if(is_range(next_r, next_c)&&map[next_r][next_c]==color&&!check[next_r][next_c]){
+                q.push(make_pair(next_r,next_c));
+                tmp_q.push(make_pair(next_r,next_c));
+            }//같은 색인 도형이 있는 경우
         }
     }
-    
-}
-void adjust_map(){
-    for(int i=11; i>=0; i--){
-        for(int j=0; j<6; j++){
-            if(map[i][j]!=EMPTY){
-                int k=i+1;
-                for(; k<12; k++){
-                    if(map[k][j]!=EMPTY){
-                        break;
-                    }
-                }
-                int tmp = map[i][j];
-                map[i][j]=EMPTY;
-                map[k-1][j]=tmp;
-            }
+    if(tmp_q.size()<4){
+        while(!tmp_q.empty()){
+            int cur_r = tmp_q.front().first, cur_c=tmp_q.front().second;
+            tmp_q.pop();
+            check[cur_r][cur_c] = false;
         }
-    }
+    }// 테트로미노 아님
 }
-void clean_map(){
-    int clean = 0;
-    for(int i=11; i>=0; i--){
-        for(int j=0; j<6; j++){
-            if(map[i][j]>=6){
-                clean++;
-                map[i][j]=EMPTY;
-            }
-        }
-    }
-    if(clean!=0) cnt++;
-}
-void print_map(){
-    printf("\n");
+bool take_burst(){
+    int cnt=0;
     for(int i=0; i<12; i++){
         for(int j=0; j<6; j++){
-            printf("%d ",map[i][j]);
+            if(check[i][j]){
+                map[i][j] = EMPTY;
+                check[i][j] = false;
+                cnt++;
+            }//테트로미노인 경우
         }
-        printf("\n");
+    }
+    return cnt;
+}//동시에 터지면 count가 1올라야 하기 때문에 bool로 리턴
+void down(){
+    for(int i=10; i>=0; i--){
+        for(int j=0; j<6; j++){
+            int k;
+            for(k=i+1; k<12; k++){
+                if(map[k][j]!=EMPTY)
+                    break;
+            }
+            swap(i,j,k-1,j);
+        }
     }
 }
 
 
-int main(int argc, const char * argv[]) {
+
+int main(void){
     for(int i=0; i<12; i++){
         char tmp;
         for(int j=0; j<6; j++){
             scanf("%c",&tmp);
-            if(tmp=='.') map[i][j] = EMPTY;
-            else if(tmp=='R') map[i][j] = RED;
-            else if(tmp=='G') map[i][j] = GREEN;
-            else if(tmp=='B') map[i][j] = BLUE;
-            else if(tmp=='P') map[i][j] = PURPLE;
-            else if(tmp=='Y') map[i][j] = YELLOW;
+            if(tmp=='.')
+                map[i][j] = EMPTY;
+            else if(tmp=='B')
+                map[i][j] = BLUE;
+            else if(tmp=='G')
+                map[i][j] = GREEN;
+            else if(tmp=='R')
+                map[i][j] = RED;
+            else if(tmp=='P')
+                map[i][j] = PURPLE;
+            else if(tmp=='Y')
+                map[i][j] = YELLOW;
+            else
+                return 0; // 잘못된 경우
         }
-        scanf("%c",&tmp);
+        scanf("%c",&tmp); //\n 날려주고~
     }
     while(true){
-        int call_number = 5;
+        //print_map();
         for(int i=0; i<12; i++){
             for(int j=0; j<6; j++){
-                call_number++;
-                if(map[i][j]!=EMPTY&&map[i][j]<6){
-                    int color = map[i][j];
-                    map[i][j] = call_number;
-                    check_shape(1,i,j,color,call_number);
-                    if(!check) map[i][j]=color;
-                }
-                check=false;
+                if(map[i][j]!=EMPTY&&!check[i][j]) determine_burst(i, j);
             }
         }
-        int pre_cnt = cnt;
-        clean_map();
-        if(pre_cnt==cnt) break;
-        adjust_map();
+        int cnt = take_burst();
+        if(!cnt) break; //터질 것이 없는 상황
+        cnt_of_burst+=cnt;
+        down();
     }
-    printf("%d\n",cnt);
+    printf("%d\n",cnt_of_burst);
+    
     return 0;
 }
+

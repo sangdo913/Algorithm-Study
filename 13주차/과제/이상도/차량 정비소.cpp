@@ -37,7 +37,7 @@ struct CarRepairShop_Repair
 };
 struct CarRepairShop_Reception
 {
-    static priority_queue<int,vector<int>, greater<int>> wait;
+    static queue<int> wait;
     int time;
     int remain;
     int index;
@@ -63,7 +63,7 @@ struct CarRepairShop_Reception
 
             if(!wait.empty())
             {
-                num = wait.top();
+                num = wait.front();
                 wait.pop();
                 remain = time;
                 
@@ -74,7 +74,7 @@ struct CarRepairShop_Reception
     }
 };
 queue<int> CarRepairShop_Repair::wait = queue<int>();
-priority_queue<int,vector<int>,greater<int> > CarRepairShop_Reception::wait = priority_queue<int,vector<int>,greater<int> >();
+queue<int> CarRepairShop_Reception::wait = queue<int>();
 
  
 int main()

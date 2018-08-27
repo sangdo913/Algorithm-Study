@@ -1,81 +1,125 @@
-//
-//  main.cpp
-//  baek과외맨
-//
-//  Created by ShinSeungYeol on 2018. 8. 26..
-//  Copyright © 2018년 ShinSeungYeol. All rights reserved.
-//
-
 #include <cstdio>
 #include <limits.h>
+#include <vector>
+#include <queue>
+#define MAX 500
+enum {UPLEFT=0, UPRIGHT=1, RIGHT=2, DOWNRIGHT=3, DOWNLEFT=4, LEFT=5};
 using namespace std;
-
-enum {EAST=0,SOUTH=1};
-
-typedef struct{
-    int left,right;
+typedef struct {
+    int left, right;
+    int row;
 }Tile;
+int n,map_size;
+Tile map[MAX*MAX-MAX/2+1];
+int check[MAX*MAX-MAX/2+1];
+int min_cost;
+int max_idx;
+int dir[6];
 
-int n;
-Tile map[2251];
-int path_array[2251];
-int correct_path_array[2251];
-int map_size;
-int end_point=1; // 가장 멀리 간 지점 index
-int path_length= INT_MAX;
-
-
-bool can_go(int id,int dir){
-    if(dir==EAST)
-        return (id+1<=map_size&&map[id].right==map[id+1].left);
-    else if(dir==SOUTH)
-        return (id+n<=map_size&&map[id].right==map[id+n].left);
-    return false;
+void init_virables(){
+    dir[UPLEFT] = -n;
+    dir[UPRIGHT] = -n+1;
+    dir[RIGHT] = 1;
+    dir[DOWNRIGHT] = n;
+    dir[DOWNLEFT] =  n-1;
+    dir[LEFT] = -1;
+    map_size=n*n-n/2;
+    for(int i=1; i<=map_size; i++)
+        check[i] = -1;
 }
-void simulation(int cur_id,int path){ // cur_id 현재 지점
-    if(can_go(cur_id, EAST)){
-        path_array[path] = cur_id+1;
-        simulation(cur_id+1,path+1);
+bool is_range(int idx){
+    return (idx>=1&&idx<=map_size);
+}
+bool can_go(int direction, int cur_idx){
+    int next_idx = cur_idx+dir[direction];
+    if(is_range(next_idx)){
+        int cur_row = map[cur_idx].row;
+        int next_row = map[next_idx].row;
+        if(direction==UPLEFT)
+            return(map[cur_idx].left==map[next_idx].right&&cur_row-1==next_row);
+        else if(direction==UPRIGHT)
+            return(map[cur_idx].right==map[next_idx].left&&cur_row-1==next_row);
+        else if(direction==RIGHT)
+            return (map[cur_idx].right==map[next_idx].left&&cur_row==next_row);
+        else if(direction==DOWNRIGHT)
+            return (map[cur_idx].right==map[next_idx].left&&cur_row+1==next_row);
+        else if(direction==DOWNLEFT)
+            return (map[cur_idx].left==map[next_idx].right&&cur_row+1==next_row);
+        else if(direction==LEFT)
+            return (map[cur_idx].left==map[next_idx].right&&cur_row==next_row);
+        else // 잘못 사용한 경우
+            return false;
+        
     }
-    if(can_go(cur_id,SOUTH)){
-        path_array[path] = cur_id+n;
-        simulation(cur_id+n,path+1);
+    else return false;
+    
+}
+int cal_row(int idx){
+    int row=-1;
+    while(idx>0){
+        idx-=n;
+        row++;
+        if(idx<=0) return row;
+        idx-=(n-1);
+        row++;
     }
-    if(!can_go(cur_id,EAST)&&!can_go(cur_id,SOUTH)){
-        if(end_point<cur_id){
-            end_point = cur_id;
-            path_length = path;
-            for(int i=0; i<path_length; i++){
-                correct_path_array[i] = path_array[i];
-            }
-        }
-        else if(end_point==cur_id){
-            if(path_length>path){
-                path_length=path;
-                for(int i=0; i<path_length; i++){
-                    correct_path_array[i] = path_array[i];
+    return row;
+}
+void bfs(){
+    queue<pair<int,int>> q;
+    q.push(make_pair(1, 1));
+    check[1] = 1;
+    max_idx=1;
+    min_cost=1;
+    
+    while(!q.empty()){
+        int cur_idx = q.front().first;
+        int depth=q.front().second+1;
+        q.pop();
+        
+        for(int i=0; i<6; i++){
+            int next_idx = cur_idx+dir[i];
+            if(can_go(i,cur_idx)&&check[next_idx]==-1){
+                q.push(make_pair(next_idx,depth));
+                check[next_idx]=cur_idx;
+                if(next_idx>max_idx){
+                    max_idx=next_idx;
+                    min_cost=depth;
                 }
             }
         }
     }
-    
 }
 
-
-
-int main(int argc, const char * argv[]) {
-    scanf("%d",&n);
-    map_size = n*n-n/2;
-    for(int i=1; i<=map_size; i++){
-        int left,right;
-        scanf("%d %d",&left,&right);
-        map[i].left = left;
-        map[i].right = right;
+void print_output(){
+    printf("%d\n",min_cost);
+    vector<int> v;
+    int cur_idx = max_idx;
+    v.push_back(cur_idx);
+    while(cur_idx!=1){
+        v.push_back(check[cur_idx]);
+        cur_idx=check[cur_idx];
     }
-    path_array[0] = 1;
-    simulation(1,1);
-    printf("%d\n",path_length);
-    for(int i=0; i<path_length; i++)
-        printf("%d ",correct_path_array[i]);
     
+    while(!v.empty()){
+        printf("%d ",v.back());
+        v.pop_back();
+    }
+    printf("\n");
 }
+
+int main(void){
+    scanf("%d",&n);
+    init_virables();
+    for(int i=1; i<=map_size; i++){
+        int tmp_left, tmp_right;
+        scanf("%d %d",&tmp_left,&tmp_right);
+        map[i].left = tmp_left;
+        map[i].right = tmp_right;
+        map[i].row = cal_row(i);
+    }
+    bfs();
+    print_output();
+    return 0;
+}
+

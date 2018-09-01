@@ -1,3 +1,4 @@
-[¼÷Á¦]
-https://algospot.com/judge/problem/read/PICNIC - ¼ÒÇ³
-https://algospot.com/judge/problem/read/BOARDCOVER - °ÔÀÓÆÇ µ¤±â
+14ì£¼ì°¨ 18/09/02 - ì—­ëŸ‰í…ŒìŠ¤íŠ¸ ëŒ€ë¹„
+[ìˆ™ì œ]
+https://algospot.com/judge/problem/read/PICNIC - ì†Œí’
+https://algospot.com/judge/problem/read/BOARDCOVER - ê²Œì„íŒ ë®ê¸°

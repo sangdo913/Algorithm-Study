@@ -1,3 +1,4 @@
-[½Ç½À]
-https://www.acmicpc.net/problem/1938 - Åë³ª¹« ¿Å±â±â
-https://www.acmicpc.net/problem/1520 - ³»¸®¸· ±æ
+14ì£¼ì°¨ 18/09/02 - ì—­ëŸ‰í…ŒìŠ¤íŠ¸ ëŒ€ë¹„
+[ì‹¤ìŠµ]
+https://www.acmicpc.net/problem/1938 - í†µë‚˜ë¬´ ì˜®ê¸°ê¸°
+https://www.acmicpc.net/problem/1520 - ë‚´ë¦¬ë§‰ ê¸¸

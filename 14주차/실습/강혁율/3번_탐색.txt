@@ -1,0 +1,54 @@
+#define	_CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <math.h>
+using namespace std;
+
+void recur(int cnt, int visit, int n,int fisrt, int current, vector<vector<int> > &signs, vector<vector<int> > &answer)
+{
+	if (cnt >0)
+		answer[fisrt][current] = 1;
+	for (int i = 0; i < signs[current].size(); i++)
+	{
+		if (signs[current][i] == 0) continue;
+		if ((visit & 1 << i)) continue;
+		recur(cnt+1, visit|1<<i,n, fisrt, i, signs, answer);
+	}
+}
+
+vector<vector<int> > solution(int n, vector<vector<int> > signs)
+{
+	vector<vector<int> > answer(n,vector<int>(n));
+
+	for (int i = 0; i < n; i++)
+	{
+		recur(0, 0, n, i, i, signs, answer);
+	}
+	return answer;
+}
+
+
+int main()
+{
+	freopen("C:\\Users\\hykan\\OneDrive\\Desktop\\input.txt", "r", stdin);
+	int n; scanf("%d", &n); 
+	int a;
+	vector<vector<int> > signs(n, vector<int>(n));
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+		{
+			scanf("%d",&a);
+			signs[i][j] = a;
+		}
+	vector<vector<int> > result = solution(n,signs);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+			printf("%d ",result[i][j]);
+		printf("\n");
+	}
+	return 0;
+}

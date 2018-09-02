@@ -1,0 +1,53 @@
+#define	_CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+int solution(int n, int m)
+{
+	int answer = 0;
+	
+	for (int i = n; i <= m; i++)
+	{
+		if (i < 10)
+		{
+			answer++;
+			continue;
+		}
+		else
+		{
+			vector<int>v;
+			int tmp = i;
+			while (tmp > 0)
+			{
+				v.push_back(tmp % 10);
+				tmp = tmp / 10;
+			}
+			bool flag = true;
+			for (int j = 0; j < v.size(); j++)
+			{
+				if (v[j] != v[v.size() - 1 - j])
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag == true)
+				answer++;
+		}
+	}
+
+	return answer;
+}
+
+int main()
+{
+
+	freopen("C:\\Users\\hykan\\OneDrive\\Desktop\\input.txt", "r", stdin);
+	int n, m;
+	scanf("%d %d",&n,&m);
+	printf("%d", solution(n, m));
+	return 0;
+}

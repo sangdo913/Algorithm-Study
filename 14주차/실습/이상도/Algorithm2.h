@@ -2,72 +2,77 @@
 #include<iostream>
 #include<algorithm>
 #include<functional>
+#include<queue>
 using namespace std;
 
-//Á¶°Ç (¸ğµç worksÀÇ ³ôÀÌ¸¦ h·Î ¸¸µé ¼ö ÀÖ´Â°¡?)
-bool canConstruct(int no, vector<int>& works, int h){
-    for(int i = 0; i < works.size(); i++){ 
-        int minus = works[i] < h ? 0 : works[i] - h;
-        no -= minus;
-    }
-    return no >= 0;
+//ì¡°ê±´ (ëª¨ë“  worksì˜ ë†’ì´ë¥¼ hë¡œ ë§Œë“¤ ìˆ˜ ìˆëŠ”ê°€?)
+bool canConstruct(int no, vector<int>& works, int h) {
+	for (int i = 0; i < works.size(); i++) {
+		int minus = works[i] < h ? 0 : works[i] - h;
+		no -= minus;
+	}
+	return no >= 0;
 }
 
-//ÆÄ¶ó¸ŞÆ®¸¯ ¼­Ä¡(¸¸µé ¼ö ÀÖ´Â ³ôÀÌµé Áß¿¡ ÃÖ°íÁ¡)
-int bs(int no, vector<int>& works){
-    int l = 0, r = 1000;
-    
-    while(l <= r){
-        int m = (l+r)/2;
-        if(!canConstruct(no, works, m)){
-            l = m+1;
-        }
-        else{
-            r = m -1;
-        }
-    }
-    //lÀÌ ¸¸µé ¼ö ÀÖ´Â Á¡µéÀÇ ÃÖ°í ³ôÀÌÀÌ´Ù.
-    return l;
+//íŒŒë¼ë©”íŠ¸ë¦­ ì„œì¹˜(ë§Œë“¤ ìˆ˜ ìˆëŠ” ë†’ì´ë“¤ ì¤‘ì— ìµœê³ ì )
+int bs(int no, vector<int>& works) {
+	int l = 0, r = 1000;
+
+	while (l <= r) {
+		int m = (l + r) / 2;
+		if (!canConstruct(no, works, m)) {
+			l = m + 1;
+		}
+		else {
+			r = m - 1;
+		}
+	}
+	//lì´ ë§Œë“¤ ìˆ˜ ìˆëŠ” ì ë“¤ì˜ ìµœê³  ë†’ì´ì´ë‹¤.
+	return l;
 }
 
 int solution(int no, vector<int> works)
 {
-    sort(works.begin(), works.end(), greater<int>());
-    int answer = 0;
-    int h = bs(no,works);
+	sort(works.begin(), works.end(), greater<int>());
+	int answer = 0;
+	int h = bs(no, works);
 
-    //³ôÀÌ°¡ ÃÖ°³ 1ÃµÀÌ±â ‹š¹®¿¡ ±×³É 1ºÎÅÍ Ç®¾îµµ µÈ´Ù.
+	//ë†’ì´ê°€ ìµœê°œ 1ì²œì´ê¸° Â‹Âšë¬¸ì— ê·¸ëƒ¥ 1ë¶€í„° í’€ì–´ë„ ëœë‹¤.
 
-    /* 
-    int h = 1000;// = bs(no,works);
-    
-    for(int i = 1000; i >=0; i--){
-        if(canConstruct(no,works, i)){
-            h = i;
-        }
-        else break;
-    }
-    */
-    
-    //¸¸µé ¼ö ÀÖ´Â ³ôÀÌ¿¡¼­ work µéÀÇ ±æÀÌ°¡ ¸îÀÌ µÇ°í, no´Â ¾ó¸¶³ª ³²´ÂÁö °è»ê
-    for(int i = 0; i < works.size(); i++){
-        int minus = works[i] < h ? 0 : works[i] - h;
-        works[i] = h < works[i] ? h : works[i];
-        no -= minus;
-    }
-    
-    //no°¡ ³²À¸¸é ¾Õ¿¡¼­ ºÎÅÍ 1¾¿ »©ÁÜ.
-    //¸¸¾à 2°¡ ³ÑÀ¸¸é, ÆÄ¶ó¸ŞÆ®¸¯ ¼­Ä¡¿¡¼­ 1 ³ôÀº °ªÀÌ ³ª¿ÔÀ»°ÅÀÓ.
-    for(int i = 0; i < works.size();i++){
-        if(no==0) break;
-        if(works[i]) works[i]--;
-        no--;
-    }
-    
-    //ÀÌÁ¦ ³²Àº workµéÀÇ Á¦°öÀ» ´õÇØÁÖ¸é ³¡
-    for(int i = 0; i < works.size(); i++){
-        answer += works[i] * works[i];
-    }
-    
-    return answer;
+	/*
+	int h = 1000;// = bs(no,works);
+
+	for(int i = 1000; i >=0; i--){
+	if(canConstruct(no,works, i)){
+	h = i;
+	}
+	else break;
+	}
+	*/
+
+	priority_queue<int> pq;
+	//ë§Œë“¤ ìˆ˜ ìˆëŠ” ë†’ì´ì—ì„œ work ë“¤ì˜ ê¸¸ì´ê°€ ëª‡ì´ ë˜ê³ , noëŠ” ì–¼ë§ˆë‚˜ ë‚¨ëŠ”ì§€ ê³„ì‚°
+	for (int i = 0; i < works.size(); i++) {
+		int minus = works[i] < h ? 0 : works[i] - h;
+		works[i] = h < works[i] ? h : works[i];
+		pq.push(works[i]);
+		no -= minus;
+	}
+
+	//ë‚¨ì€ ê²ƒì´ ë§ìœ¼ë©´ pqì—ì„œ ë†’ì€ ê²ƒ ë¶€í„° ì œê±°
+	while (no) {
+		int now = pq.top();
+		pq.pop();
+		now--;
+		no--;
+		pq.push(now);
+	}
+	
+	//ì´ì œ ë‚¨ì€ workë“¤ì˜ ì œê³±ì„ ë”í•´ì£¼ë©´ ë
+	while (pq.size()) {
+		answer += pq.top()*pq.top();
+		pq.pop();
+	}
+
+	return answer;
 }
